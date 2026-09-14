@@ -1,7 +1,7 @@
 name: Android APK Builder
 
 on:
-  workflow_dispatch: # Is se aap jab chahein button daba kar APK bana sakte hain
+  workflow_dispatch: # Allows manual trigger from the Actions tab
 
 jobs:
   build:
@@ -12,18 +12,18 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Java Development Kit (JDK 17)
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5  # Upgraded to v5 to fix deprecation
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Setup Node.js Environment
+      - name: Setup Node.js Environment (Node 24)
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'        # Upgraded to Node 24 to match GitHub 2026 standards
           cache: 'npm'
 
-      - name: Clear Cache and Force Install Web Dependencies
+      - name: Force Install Web Dependencies
         run: |
           npm cache clean --force
           npm install --legacy-peer-deps
