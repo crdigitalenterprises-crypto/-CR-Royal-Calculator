@@ -1,0 +1,55 @@
+name: Android APK Builder
+
+on:
+  workflow_dispatch: # Is se aap jab chahein button daba kar APK bana sakte hain
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java Development Kit (JDK 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Clear Cache and Force Install Web Dependencies
+        run: |
+          npm cache clean --force
+          npm install --legacy-peer-deps
+
+      - name: Build Web Application Components
+        run: npm run build
+
+      - name: Install Android Mobile Bridge (Capacitor)
+        run: npm install @capacitor/core @capacitor/cli @capacitor/android --legacy-peer-deps
+
+      - name: Sync Web Code to Android Module
+        run: npx cap sync android
+
+      - name: Fix Windows Line Formatting for Linux Builder
+        run: |
+          sed -i 's/\r$//' android/gradlew
+          chmod +x android/gradlew
+
+      - name: Compile Production Debug APK File
+        run: |
+          cd android
+          ./gradlew assembleDebug
+
+      - name: Upload Generated APK as Downloadable Asset
+        uses: actions/upload-artifact@v4
+        with:
+          name: CR_Royal_Calculator_APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 7
