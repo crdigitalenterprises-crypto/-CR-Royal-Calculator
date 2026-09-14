@@ -1,0 +1,8 @@
+{
+  "android": {
+    "package": "com.anonymous.vitereacttypescriptstarter"
+  },
+  "ios": {
+    "bundleIdentifier": "com.anonymous.vitereacttypescriptstarter"
+  }
+}
