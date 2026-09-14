@@ -6,11 +6,9 @@ import {
   Binary,
   LineChart,
   Ruler,
-  Palette,
   History,
   Moon,
   Sun,
-  Delete,
   Settings,
   Weight,
   Thermometer,
@@ -85,6 +83,7 @@ function InlineConverter({ theme }: { theme: ThemePalette }) {
     appearance: 'none',
     WebkitAppearance: 'none',
     paddingRight: '30px',
+    width: '100%',
   };
 
   const inputStyle: React.CSSProperties = {
@@ -129,7 +128,7 @@ function InlineConverter({ theme }: { theme: ThemePalette }) {
   });
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       <h3 style={{ fontSize: '16px', fontWeight: 700, color: theme.textPrimary, margin: 0, fontFamily: "'Inter', sans-serif" }}>
         Unit Converter
       </h3>
@@ -208,6 +207,7 @@ export function CalculatorScreen({ calc, settings, onSettingsChange }: Calculato
   const [showSettings, setShowSettings] = useState(false);
 
   const { theme, mode } = calc;
+  const showAdvancedPanel = mode === 'advanced' && calc.advancedTab !== 'scientific';
 
   const tabs: { id: AdvancedTab; label: string; icon: typeof Calculator }[] = [
     { id: 'scientific', label: 'Scientific', icon: FunctionSquare },
@@ -287,8 +287,6 @@ export function CalculatorScreen({ calc, settings, onSettingsChange }: Calculato
     }
   };
 
-  const showAdvancedPanel = mode === 'advanced' && calc.advancedTab !== 'scientific';
-
   return (
     <div
       style={{
@@ -309,22 +307,21 @@ export function CalculatorScreen({ calc, settings, onSettingsChange }: Calculato
           maxWidth: '520px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '12px',
           flex: 1,
           minHeight: 0,
+          gap: '10px',
         }}
       >
-        {/* Header */}
+        {/* Header — fixed proportion */}
         <div
           style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            paddingTop: '4px',
             flexShrink: 0,
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
             <div
               style={{
                 width: '36px',
@@ -346,13 +343,15 @@ export function CalculatorScreen({ calc, settings, onSettingsChange }: Calculato
                 color: theme.textPrimary,
                 letterSpacing: '-0.01em',
                 whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
               }}
             >
               CR Royal Calculator
             </span>
           </div>
 
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
             <button onClick={() => setShowHistory(true)} style={iconBtnStyle} title="History">
               <History size={18} color={theme.textSecondary} />
             </button>
@@ -365,7 +364,7 @@ export function CalculatorScreen({ calc, settings, onSettingsChange }: Calculato
           </div>
         </div>
 
-        {/* Mode Toggle */}
+        {/* Mode Toggle — fixed proportion */}
         <div
           style={{
             display: 'flex',
@@ -386,16 +385,20 @@ export function CalculatorScreen({ calc, settings, onSettingsChange }: Calculato
           </button>
         </div>
 
-        {/* Advanced Tab Bar */}
+        {/* Advanced Tab Bar — scroll-snap, never clips labels */}
         {mode === 'advanced' && (
           <div
+            className="tab-scroll"
             style={{
               display: 'flex',
               gap: '4px',
               overflowX: 'auto',
+              overflowY: 'hidden',
               paddingBottom: '2px',
               flexShrink: 0,
               animation: 'fadeIn 200ms ease',
+              scrollSnapType: 'x mandatory',
+              WebkitOverflowScrolling: 'touch',
             }}
           >
             {tabs.map((tab) => {
@@ -404,7 +407,10 @@ export function CalculatorScreen({ calc, settings, onSettingsChange }: Calculato
                 <button
                   key={tab.id}
                   onClick={() => calc.setAdvancedTab(tab.id)}
-                  style={tabStyle(calc.advancedTab === tab.id)}
+                  style={{
+                    ...tabStyle(calc.advancedTab === tab.id),
+                    scrollSnapAlign: 'start',
+                  }}
                 >
                   <Icon size={15} />
                   {tab.label}
@@ -423,51 +429,65 @@ export function CalculatorScreen({ calc, settings, onSettingsChange }: Calculato
           />
         )}
 
-        {/* Display */}
-        <Display
-          expression={calc.expression}
-          result={calc.result}
-          error={calc.error}
-          angleMode={calc.angleMode}
-          memory={calc.memory}
-          theme={theme}
-          mode={mode}
-        />
+        {/* Display — ~25% of screen via flex */}
+        <div style={{ flex: '0 0 auto', minHeight: '0' }}>
+          <Display
+            expression={calc.expression}
+            result={calc.result}
+            error={calc.error}
+            angleMode={calc.angleMode}
+            memory={calc.memory}
+            theme={theme}
+            mode={mode}
+          />
+        </div>
 
-        {/* Advanced Panel */}
+        {/* Active Workspace — insulated flex container, never bleeds into keypad */}
         {showAdvancedPanel && (
           <div
             style={{
               background: theme.bgSecondary,
               borderRadius: '20px',
-              padding: '20px',
+              padding: '16px',
               border: `1px solid ${theme.border}`,
               animation: 'slideUp 300ms ease',
-              flexShrink: 1,
+              flex: '1 1 18%',
               minHeight: 0,
               overflowY: 'auto',
+              overflowX: 'hidden',
+              WebkitOverflowScrolling: 'touch',
             }}
           >
             {renderAdvancedPanel()}
           </div>
         )}
 
-        {/* Keypad */}
-        <Keypad
-          theme={theme}
-          mode={mode === 'advanced' && calc.advancedTab === 'scientific' ? 'advanced' : 'simple'}
-          onInput={calc.input}
-          onClear={calc.clear}
-          onBackspace={calc.backspace}
-          onCalculate={calc.calculate}
-          onMemoryAdd={calc.memoryAdd}
-          onMemorySubtract={calc.memorySubtract}
-          onMemoryRecall={calc.memoryRecall}
-          onMemoryClear={calc.memoryClear}
-          memory={calc.memory}
-          angleMode={calc.angleMode}
-          onToggleAngle={calc.toggleAngleMode}
-        />
+        {/* Core Keypad — ~45% of screen, always pinned to bottom */}
+        <div
+          style={{
+            flex: showAdvancedPanel ? '0 0 auto' : '1 1 45%',
+            minHeight: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-end',
+          }}
+        >
+          <Keypad
+            theme={theme}
+            mode={mode === 'advanced' && calc.advancedTab === 'scientific' ? 'advanced' : 'simple'}
+            onInput={calc.input}
+            onClear={calc.clear}
+            onBackspace={calc.backspace}
+            onCalculate={calc.calculate}
+            onMemoryAdd={calc.memoryAdd}
+            onMemorySubtract={calc.memorySubtract}
+            onMemoryRecall={calc.memoryRecall}
+            onMemoryClear={calc.memoryClear}
+            memory={calc.memory}
+            angleMode={calc.angleMode}
+            onToggleAngle={calc.toggleAngleMode}
+          />
+        </div>
       </div>
 
       {/* Modals */}

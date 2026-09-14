@@ -8,7 +8,6 @@ interface CalcKeyProps {
   variant?: 'number' | 'operator' | 'function' | 'equals' | 'danger';
   theme: ThemePalette;
   span?: 1 | 2;
-  height?: number;
   fontSize?: number;
   active?: boolean;
   disabled?: boolean;
@@ -20,7 +19,6 @@ export function CalcKey({
   variant = 'number',
   theme,
   span = 1,
-  height = 64,
   fontSize = 24,
   active = false,
   disabled = false,
@@ -72,8 +70,7 @@ export function CalcKey({
       disabled={disabled}
       style={{
         gridColumn: span === 2 ? 'span 2' : undefined,
-        height: `${height}px`,
-        fontSize: `${fontSize}px`,
+        fontSize: `clamp(${Math.round(fontSize * 0.6)}px, ${Math.round(fontSize * 0.18)}vw, ${fontSize}px)`,
         background: active ? theme.accent : colors.bg,
         color: active ? theme.accentText : colors.text,
         border: 'none',
@@ -90,6 +87,10 @@ export function CalcKey({
         WebkitUserSelect: 'none',
         opacity: disabled ? 0.4 : 1,
         touchAction: 'manipulation',
+        width: '100%',
+        height: '100%',
+        minHeight: '40px',
+        aspectRatio: 'auto',
       }}
       onMouseDown={(e: MouseEvent) => {
         (e.currentTarget as HTMLElement).style.transform = 'scale(0.96)';

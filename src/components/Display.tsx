@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { Copy, Check, Clipboard } from 'lucide-react';
-import type { ThemePalette, ClipboardTarget } from '@/types/calculator';
+import type { ThemePalette } from '@/types/calculator';
 
 interface DisplayProps {
   expression: string;
@@ -72,7 +72,7 @@ export function Display({
       document.execCommand('copy');
       document.body.removeChild(textarea);
     } catch {
-      // Clipboard API completely unavailable — nothing more we can do
+      // Clipboard API completely unavailable
     }
   };
 
@@ -97,6 +97,17 @@ export function Display({
       longPressTimer.current = null;
     }
   }, []);
+
+  // Auto-scale font based on content length — no fixed heights
+  const resultLen = showResult ? result.length : 0;
+  const resultFontSize = resultLen > 20 ? 'clamp(20px, 5vw, 28px)'
+    : resultLen > 12 ? 'clamp(24px, 6vw, 36px)'
+    : resultLen > 6 ? 'clamp(28px, 7vw, 42px)'
+    : 'clamp(32px, 8vw, 48px)';
+
+  const exprFontSize = expression.length > 30 ? 'clamp(12px, 3vw, 16px)'
+    : expression.length > 15 ? 'clamp(14px, 3.5vw, 18px)'
+    : 'clamp(16px, 4vw, 20px)';
 
   const menuItemStyle: React.CSSProperties = {
     display: 'flex',
@@ -130,14 +141,13 @@ export function Display({
         onTouchMove={cancelLongPress}
         style={{
           background: theme.displayBg,
-          padding: '24px 28px',
+          padding: 'clamp(12px, 3vh, 24px) clamp(14px, 4vw, 28px)',
           borderRadius: '20px',
-          minHeight: mode === 'advanced' ? '160px' : '140px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'flex-end',
           alignItems: 'flex-end',
-          gap: '8px',
+          gap: '6px',
           border: `1px solid ${theme.border}`,
           transition: 'background 300ms ease, border 300ms ease',
           position: 'relative',
@@ -145,14 +155,16 @@ export function Display({
           userSelect: 'none',
           WebkitUserSelect: 'none',
           cursor: 'pointer',
+          minHeight: 'clamp(90px, 18vh, 160px)',
+          flexShrink: 1,
         }}
       >
         {/* Status badges */}
         <div
           style={{
             position: 'absolute',
-            top: '14px',
-            left: '20px',
+            top: 'clamp(8px, 1.5vh, 14px)',
+            left: 'clamp(10px, 2.5vw, 20px)',
             display: 'flex',
             gap: '8px',
             alignItems: 'center',
@@ -183,7 +195,6 @@ export function Display({
                 padding: '3px 10px',
                 borderRadius: '8px',
                 letterSpacing: '0.05em',
-                cursor: 'pointer',
               }}
             >
               {angleMode.toUpperCase()}
@@ -211,31 +222,32 @@ export function Display({
           )}
         </div>
 
-        {/* Expression line */}
+        {/* Expression line — multi-line auto-scaling, wraps dynamically */}
         <div
           style={{
             width: '100%',
             textAlign: 'right',
-            fontSize: '20px',
+            fontSize: exprFontSize,
             color: theme.displaySecondary,
             fontFamily: "'JetBrains Mono', 'SF Mono', monospace",
-            minHeight: '28px',
+            minHeight: '1.4em',
             overflowWrap: 'break-word',
             wordBreak: 'break-all',
             lineHeight: 1.3,
-            maxHeight: '60px',
+            maxHeight: '4.2em',
             overflowY: 'auto',
+            flexShrink: 1,
           }}
         >
           {expression || ''}
         </div>
 
-        {/* Result / Error line */}
+        {/* Result / Error line — auto-scaling font */}
         <div
           style={{
             width: '100%',
             textAlign: 'right',
-            fontSize: showResult && result.length > 12 ? '32px' : '44px',
+            fontSize: resultFontSize,
             fontWeight: 300,
             color: hasError ? theme.danger : theme.displayText,
             fontFamily: "'Inter', system-ui, sans-serif",
@@ -244,6 +256,7 @@ export function Display({
             wordBreak: 'break-all',
             transition: 'color 200ms ease',
             letterSpacing: '-0.02em',
+            flexShrink: 0,
           }}
         >
           {hasError ? error : showResult ? result : '0'}

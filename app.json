@@ -1,8 +1,8 @@
 {
   "android": {
-    "package": "com.anonymous.vitereacttypescriptstarter"
+    "package": "com.cr.royalcalculator"
   },
   "ios": {
-    "bundleIdentifier": "com.anonymous.vitereacttypescriptstarter"
+    "bundleIdentifier": "com.cr.royalcalculator"
   }
 }

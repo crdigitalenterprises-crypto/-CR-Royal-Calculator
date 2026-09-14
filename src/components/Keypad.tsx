@@ -32,7 +32,15 @@ export function Keypad({
   angleMode,
   onToggleAngle,
 }: KeypadProps) {
-  const gap = 10;
+  const gap = 'clamp(4px, 1vw, 10px)';
+
+  const gridRowStyle: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gap,
+    flex: 1,
+    minHeight: 0,
+  };
 
   const simpleKeys = (
     <>
@@ -62,8 +70,16 @@ export function Keypad({
     </>
   );
 
+  const sciGridStyle: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(6, 1fr)',
+    gap,
+    flex: 1,
+    minHeight: 0,
+  };
+
   const scientificRow1 = (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: `${gap}px` }}>
+    <div style={sciGridStyle}>
       <CalcKey label="sin" variant="function" theme={theme} fontSize={16} onClick={() => onInput('sin(')} />
       <CalcKey label="cos" variant="function" theme={theme} fontSize={16} onClick={() => onInput('cos(')} />
       <CalcKey label="tan" variant="function" theme={theme} fontSize={16} onClick={() => onInput('tan(')} />
@@ -74,7 +90,7 @@ export function Keypad({
   );
 
   const scientificRow2 = (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: `${gap}px` }}>
+    <div style={sciGridStyle}>
       <CalcKey label="sin⁻¹" variant="function" theme={theme} fontSize={13} onClick={() => onInput('asin(')} />
       <CalcKey label="cos⁻¹" variant="function" theme={theme} fontSize={13} onClick={() => onInput('acos(')} />
       <CalcKey label="tan⁻¹" variant="function" theme={theme} fontSize={13} onClick={() => onInput('atan(')} />
@@ -85,7 +101,7 @@ export function Keypad({
   );
 
   const scientificRow3 = (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: `${gap}px` }}>
+    <div style={sciGridStyle}>
       <CalcKey label="π" variant="function" theme={theme} fontSize={18} onClick={() => onInput('pi')} />
       <CalcKey label="e" variant="function" theme={theme} fontSize={18} onClick={() => onInput('e')} />
       <CalcKey label="n!" variant="function" theme={theme} fontSize={16} onClick={() => onInput('fact(')} />
@@ -96,7 +112,7 @@ export function Keypad({
   );
 
   const memoryRow = (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: `${gap}px` }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap, flex: 1, minHeight: 0 }}>
       <CalcKey label="MC" variant="function" theme={theme} fontSize={16} onClick={onMemoryClear} disabled={memory === 0} />
       <CalcKey label="MR" variant="function" theme={theme} fontSize={16} onClick={onMemoryRecall} disabled={memory === 0} />
       <CalcKey label="M−" variant="function" theme={theme} fontSize={16} onClick={onMemorySubtract} />
@@ -105,7 +121,15 @@ export function Keypad({
   );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: `${gap}px` }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap,
+        flex: 1,
+        minHeight: 0,
+      }}
+    >
       {mode === 'advanced' && (
         <>
           {memoryRow}
@@ -114,13 +138,7 @@ export function Keypad({
           {scientificRow3}
         </>
       )}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: `${gap}px`,
-        }}
-      >
+      <div style={gridRowStyle}>
         {simpleKeys}
       </div>
     </div>
