@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">CR Royal Calculator</string>
+    <string name="title_activity_main">CR Royal Calculator</string>
+    <string name="package_name">com.cr.royalcalculator</string>
+    <string name="custom_url_scheme">com.cr.royalcalculator</string>
+</resources>
